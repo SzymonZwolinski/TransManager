@@ -1,0 +1,50 @@
+﻿@page "/movies"
+@using TransManager.Domain.Enums
+@using TransManager.Domain.Models
+@using TransManager.Features.Movies
+
+<h3>Movie translation</h3>
+
+<select class="form-control" @bind="@SelectedMovie" style="width:150px">
+	@foreach (var movie in Movies)
+    {
+		<option value=@movie>@movie</option>
+    }
+</select>
+<select class="form-control" @bind="@SelectedMovie" style="width:150px">
+	@foreach (var lang in Enum.GetValues<Languages>)
+	{
+		<option value="@lang">@lang</option>
+	}
+</select>
+<button @onclick="GetMovieTranslationAsync">Translate</button>
+
+@if (_movie is not null)
+{
+	<h1>
+		@_movie.Name
+	</h1>
+}
+
+@code {
+	[Inject]
+	private GetMovieController _getMovieController { get; set; }
+	public List<string> Movies = new List<string>() 
+		{ "The Lord Of The Rings: The Fellowship Of The Ring",
+		"Star Wars: The Empire Strikes Back",
+		"The Godfather",
+		"The Dark Knight",
+		"The Shawshank Redemption",
+		"Jaws",
+		"Raiders Of The Lost Ark" };
+
+
+	private string SelectedMovie { get; set; }
+	private Languages SelectedLanguage { get; set;  }
+	private Movie _movie = null;
+
+	private async void GetMovieTranslationAsync()
+	{
+		await _getMovieController.Get(new GetWordQuery(SelectedLanguage, SelectedMovie));
+	}
+}

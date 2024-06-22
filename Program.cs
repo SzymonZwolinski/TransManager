@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using TransManager.Data;
+using TransManager.Features.Movies;
 
 namespace TransManager
 {
@@ -13,7 +11,8 @@ namespace TransManager
 			// Add services to the container.
 			builder.Services.AddRazorPages();
 			builder.Services.AddServerSideBlazor();
-			builder.Services.AddSingleton<WeatherForecastService>();
+			builder.Services.AddMediatR(options => { } );
+			builder.Services.AddTransient<GetMovieController>();
 
 			var app = builder.Build();
 
