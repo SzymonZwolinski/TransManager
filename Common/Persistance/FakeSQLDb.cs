@@ -1,4 +1,4 @@
-﻿using TransManager.Domain.Words;
+﻿using TransManager.Domain.Models;
 
 namespace TransManager.Common.Persistance
 {

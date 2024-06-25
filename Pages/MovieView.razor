@@ -1,18 +1,19 @@
 ﻿@page "/movies"
-@using TransManager.Domain.Enums
+@using System.Globalization
 @using TransManager.Domain.Models
 @using TransManager.Features.Movies
 
 <h3>Movie translation</h3>
 
 <select class="form-control" @bind="@SelectedMovie" style="width:150px">
+	<option value="">---</option>
 	@foreach (var movie in Movies)
     {
 		<option value=@movie>@movie</option>
     }
 </select>
-<select class="form-control" @bind="@SelectedMovie" style="width:150px">
-	@foreach (var lang in Enum.GetValues<Languages>)
+<select class="form-control" @bind="@SelectedLanguage" style="width:150px">
+	@foreach (var lang in AllCultures)
 	{
 		<option value="@lang">@lang</option>
 	}
@@ -40,8 +41,16 @@
 
 
 	private string SelectedMovie { get; set; }
-	private Languages SelectedLanguage { get; set;  }
+	private CultureInfo SelectedLanguage { get; set;  }
+	private List<CultureInfo> AllCultures { get; set; } = new List<CultureInfo>();
+
 	private Movie _movie = null;
+
+	protected override void OnInitialized()
+	{
+		AllCultures = CultureInfo.GetCultures(CultureTypes.AllCultures).ToList();
+	}
+
 
 	private async void GetMovieTranslationAsync()
 	{

@@ -1,3 +1,12 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.NetworkInformation;
+using System.Reflection;
+using TransManager.Common.Adapter;
+using TransManager.Common.Persistance;
+using TransManager.Common.Repositories;
+using TransManager.Domain.Models;
 using TransManager.Features.Movies;
 
 namespace TransManager
@@ -11,10 +20,41 @@ namespace TransManager
 			// Add services to the container.
 			builder.Services.AddRazorPages();
 			builder.Services.AddServerSideBlazor();
-			builder.Services.AddMediatR(options => { } );
+			builder.Services.AddControllersWithViews();
 			builder.Services.AddTransient<GetMovieController>();
 
-			var app = builder.Build();
+
+			builder.Services.AddTransient<ITranslationAdapter, TranslationAdapter>();
+			builder.Services.AddTransient<ITranslationRepository, TranslationRepository>();
+			builder.Services.AddTransient<IRequestHandler<GetWordQuery, Movie>, GetMovieHandler>();
+			builder.Services.AddTransient<FakeSQLDb>(); 
+
+			builder.Services.AddDbContext<SqlLiteDb>();
+
+			builder.Services.AddMediatR(cfg =>
+				cfg.RegisterServicesFromAssembly(typeof(GetWordQuery).Assembly));
+
+			var app = builder.Build();	
+
+			using (var scope = app.Services.CreateScope())
+			{
+				var services = scope.ServiceProvider;
+				try
+				{
+					var context = services.GetRequiredService<SqlLiteDb>();
+
+					// Ensure database is created
+					context.Database.EnsureCreated();
+
+					// Apply any pending migrations
+					context.Database.Migrate();
+				}
+				catch (Exception ex)
+				{
+					var logger = services.GetRequiredService<ILogger<Program>>();
+					logger.LogError(ex, "An error occurred while creating or migrating the database.");
+				}
+			}
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())

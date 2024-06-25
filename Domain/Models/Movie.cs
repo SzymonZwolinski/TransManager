@@ -1,9 +1,12 @@
-﻿namespace TransManager.Domain.Models
+﻿using TransManager.Domain.Models.Markers;
+
+namespace TransManager.Domain.Models
 {
-	public class Movie
+	public class Movie : ITranslatable
 	{
-		public string Name { get; private set; }
-		
+		public Guid Id { get; set; }
+		public string Name { get; set; }
+
 		public Movie(string name) 
 		{
 			SetName(name);
